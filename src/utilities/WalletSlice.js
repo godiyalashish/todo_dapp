@@ -7,7 +7,6 @@ const WalletSlice = createSlice({
     },
 reducers:{
     addWallet(state, action){
-        console.log(action.payload);
         state.wallet.push(action.payload);
     },
 }

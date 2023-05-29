@@ -4,7 +4,8 @@ import {pencil} from 'react-icons-kit/icomoon/pencil'
 import {bin} from 'react-icons-kit/icomoon/bin'
 import {androidBookmark} from 'react-icons-kit/ionicons/androidBookmark'
 
-const TodoItem = () => {
+const TodoItem = ({name}) => {
+    console.log(name)
   return (
     <div className='bg-[#14161A] p-2 w-full flex mt-2 rounded-lg min-h-min pb-7 shadow-lg'>
         <div className='w- w-11/12 flex flex-col'>
@@ -12,7 +13,7 @@ const TodoItem = () => {
                 <div className='p-2 shadow-lg pt-1 bg-[#3772FF] flex items-center justify-center h-7 w-7 rounded-full text-white'>
                     <Icon icon={androidBookmark} className='font-bold'/>
                 </div>
-                <p>Todo name</p>
+                <p>{name}</p>
             </div>
             <div className='text-[#808191]'>Todo description</div>
         </div>

@@ -7,6 +7,7 @@ import Web3 from "web3";
 import { CONTRACT_ADDRESS } from "./utilities/config";
 import { addWallet } from "./utilities/WalletSlice";
 import { useDispatch } from "react-redux";
+import { addTodoList } from "./utilities/TodoListsSlice";
 
 const web3 = new Web3(window.ethereum);
 const contract = new web3.eth.Contract(abi, CONTRACT_ADDRESS);
@@ -15,10 +16,12 @@ const contract = new web3.eth.Contract(abi, CONTRACT_ADDRESS);
 function App() {
 
   const [account, setAccount] = useState();
+  const [todolists, setTodolists] = useState([]);
+  const [lists, setlists] = useState();
   useEffect(() => {
     if(!window.ethereum) console.log("Install metamask")
     else console.log("Metamask found!!!");
-    getLists();
+    getUsersList()
   }, [account]);
   const dispatch = useDispatch();
   const getAndSetAccount = async () => {
@@ -29,10 +32,14 @@ function App() {
     setAccount(changedAccounts[0]);
     dispatch(addWallet({add:changedAccounts, balance:balanceEther}));
   }
+
+  const getUsersList = () =>{
+    getLists();
+  }
   
   const addList = () => {
-    contract.methods.createTodoList("list1").send({
-      from: '0x4Fb6BCd83316E2c0A176fEe5383807f85aEE95F2',
+    contract.methods.createTodoList("list2").send({
+      from: account,
       gas: 200000, // Adjust the gas limit as needed
       gasPrice: '5000000000', // Adjust the gas price as needed
     })
@@ -46,7 +53,7 @@ function App() {
 
   const addTodo = () => {
     contract.methods.addTodoItem(0,"item1").send({
-      from: '0x4Fb6BCd83316E2c0A176fEe5383807f85aEE95F2',
+      from: account,
       gas: 200000, // Adjust the gas limit as needed
       gasPrice: '5000000000', // Adjust the gas price as needed
     })
@@ -58,12 +65,17 @@ function App() {
     });
   };
 
-  const getTodos = () => {
+  const getTodos = (listname,i) => {
     contract.methods
-      .getTodoListItems(0)
-      .call({ from: '0x4Fb6BCd83316E2c0A176fEe5383807f85aEE95F2' })
+      .getTodoListItems(i)
+      .call({ from: account })
       .then((result) => {
-        console.log(result); // Handle the result of the function call
+        console.log(result);
+        const obj = {name : listname, items:[]};
+        for(let i=0; i<result.length; i++){
+          obj.items.push({name:result[i].name, isCompleted:result[i].completed})
+        }
+        dispatch(addTodoList(obj)); 
       })
       .catch((error) => {
         console.error(error); // Handle any errors that occur during the function call
@@ -74,9 +86,12 @@ function App() {
   const getLists = () => {
     contract.methods
       .getTodoLists()
-      .call(({ from: '0x4Fb6BCd83316E2c0A176fEe5383807f85aEE95F2' }))
+      .call(({ from: account }))
       .then((result) => {
-        console.log(result); // Handle the result of the function call
+        console.log(result[0].name);
+        for(let i=0; i<result.length; i++){
+          getTodos(result[i].name, i);
+        }
       })
       .catch((error) => {
         console.error(error); // Handle any errors that occur during the function call
